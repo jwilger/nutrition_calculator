@@ -25,15 +25,18 @@ module NutritionCalculator
     end
 
     module ClassMethods
-      def def_input(name, default)
+      def def_input(name)
         define_method("#{name}=") do |value|
-          instance_variable_set("@#{name}", value)
           recalculate!
+          instance_variable_set("@#{name}", value)
         end
 
         define_method(name) do
-          instance_variable_get("@#{name}") \
-            || instance_variable_set("@#{name}", default)
+          instance_variable_get("@#{name}").tap do |v|
+            if v.nil?
+              raise RuntimeError, "Required input missing: `#{name}`."
+            end
+          end
         end
       end
 

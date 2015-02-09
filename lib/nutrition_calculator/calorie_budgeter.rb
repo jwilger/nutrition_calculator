@@ -4,12 +4,12 @@ module NutritionCalculator
   class CalorieBudgeter
     include CachedOutputsWithRecalculation
 
-    def_input :resting_metabolic_rate, 2_000
-    def_input :weekly_calorie_goal, 14_000
-    def_input :prior_days_calories, 0
-    def_input :current_day_of_week, 1
-    def_input :calories_consumed, 0
-    def_input :calories_burned, 0
+    def_input :resting_metabolic_rate
+    def_input :weekly_calorie_goal
+    def_input :prior_days_calories
+    def_input :current_day_of_week
+    def_input :calories_consumed
+    def_input :calories_burned
 
     def_output :net_calorie_consumption do
       calories_consumed - calories_burned
