@@ -36,11 +36,7 @@ module NutritionCalculator
     end
 
     def_output :target_daily_calorie_consumption do
-      if calories_burned < (resting_metabolic_rate - daily_calorie_goal)
-        resting_metabolic_rate
-      else
-        daily_calorie_goal + calories_burned
-      end
+      [(daily_calorie_goal + calories_burned), resting_metabolic_rate].max
     end
 
     def_output :daily_calorie_goal do
