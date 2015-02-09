@@ -25,29 +25,47 @@ module NutritionCalculator
       end
     end
 
+    def require_input(name)
+      unless instance_variable_defined?("@#{name}")
+        raise RuntimeError, "Required input missing: `#{name}`."
+      end
+    end
+
+    def cache_and_debug(name, &block)
+      cache(name) do
+        run_and_debug(name, &block)
+      end
+    end
+
+    def run_and_debug(name, &block)
+      debug_value(name) { instance_eval &block }
+    end
+
     module ClassMethods
       def def_input(name)
-        define_method("#{name}=") do |value|
-          recalculate!
-          instance_variable_set("@#{name}", value)
-        end
-
-        define_method(name) do
-          instance_variable_get("@#{name}").tap do |v|
-            if v.nil?
-              raise RuntimeError, "Required input missing: `#{name}`."
-            end
-          end
-        end
+        def_input_writer name
+        def_input_reader name
       end
 
       def def_output(name, &block)
         define_method(name) do
-          cache(name) do
-            debug_value(name) do
-              instance_eval &block
-            end
-          end
+          cache_and_debug(name, &block)
+        end
+      end
+
+      private
+
+      def def_input_writer(name)
+        define_method("#{name}=") do |value|
+          recalculate!
+          instance_variable_set("@#{name}", value)
+        end
+      end
+
+      def def_input_reader(name)
+        define_method(name) do
+          require_input name
+          instance_variable_get("@#{name}")
         end
       end
     end
