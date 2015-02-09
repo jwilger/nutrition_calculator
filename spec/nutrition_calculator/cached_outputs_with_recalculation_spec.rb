@@ -4,7 +4,7 @@ require 'nutrition_calculator/cached_outputs_with_recalculation'
 describe NutritionCalculator::CachedOutputsWithRecalculation do
   subject {
     klass = Class.new do
-      include NutritionCalculator::CachedOutputsWithRecalculation
+      extend NutritionCalculator::CachedOutputsWithRecalculation
 
       def_input :foo
 

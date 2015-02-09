@@ -2,7 +2,7 @@ require 'nutrition_calculator/cached_outputs_with_recalculation'
 
 module NutritionCalculator
   class CalorieBudgeter
-    include CachedOutputsWithRecalculation
+    extend CachedOutputsWithRecalculation
 
     def_input :resting_metabolic_rate
     def_input :weekly_calorie_goal
