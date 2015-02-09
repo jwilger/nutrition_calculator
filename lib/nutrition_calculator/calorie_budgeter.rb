@@ -2,7 +2,7 @@ require 'nutrition_calculator/null_logger'
 require 'nutrition_calculator/cached_outputs_with_recalculation'
 
 module NutritionCalculator
-  class RemainingDailyCaloriesCalculator
+  class CalorieBudgeter
     include CachedOutputsWithRecalculation
 
     attr_accessor :logger

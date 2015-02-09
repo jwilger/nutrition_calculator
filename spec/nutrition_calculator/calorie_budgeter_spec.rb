@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'nutrition_calculator/remaining_daily_calories_calculator'
+require 'nutrition_calculator/calorie_budgeter'
 
-describe NutritionCalculator::RemainingDailyCaloriesCalculator do
+describe NutritionCalculator::CalorieBudgeter do
   describe '#net_calorie_consumption' do
     it 'is the number of calories consumed less any calories burned via exercise' do
       subject.calories_consumed = 100

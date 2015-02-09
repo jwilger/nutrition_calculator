@@ -1,8 +1,7 @@
-require 'ostruct'
-require 'nutrition_calculator/remaining_daily_calories_calculator'
+require 'nutrition_calculator/calorie_budgeter'
 
 def inputs
-  @inputs ||= NutritionCalculator::RemainingDailyCaloriesCalculator.new
+  @inputs ||= NutritionCalculator::CalorieBudgeter.new
 end
 
 def calculate_remaining_calories
