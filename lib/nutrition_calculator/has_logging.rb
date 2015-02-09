@@ -1,6 +1,8 @@
 module NutritionCalculator
   module HasLogging
-    class NullLogger
+    module NullLogger
+      extend self
+
       def noop(*args);end
       alias_method :error, :noop
       alias_method :warn, :noop
@@ -8,14 +10,13 @@ module NutritionCalculator
       alias_method :debug, :noop
     end
 
-    def initialize(*args, logger: NullLogger.new)
-      self.logger = logger
-      super *args
+    attr_writer :logger
+
+    def logger
+      @logger ||= NullLogger
     end
 
     private
-
-    attr_accessor :logger
 
     def debug_value(name, &block)
       block.call.tap do |v|

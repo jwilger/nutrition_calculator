@@ -15,6 +15,7 @@ module NutritionCalculator
     end
 
     def recalculate!
+      logger.debug "Input received; clearing cached calculations."
       @cached_values = {}
     end
 

@@ -5,8 +5,8 @@ def inputs
 end
 
 def calculate_remaining_calories
-  # this is a noop, because the calculator calculates the data upon request of
-  # its attributes
+  # Uncomment the following line if you need debugging output
+  # inputs.logger = logger
 end
 
 def outputs
