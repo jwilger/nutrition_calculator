@@ -1,5 +1,9 @@
+require 'nutrition_calculator/has_logging'
+
 module NutritionCalculator
   module CachedOutputsWithRecalculation
+    include HasLogging
+
     def self.included(other)
       other.extend(ClassMethods)
     end
@@ -36,7 +40,9 @@ module NutritionCalculator
       def def_output(name, &block)
         define_method(name) do
           cache(name) do
-            instance_eval &block
+            debug_value(name) do
+              instance_eval &block
+            end
           end
         end
       end

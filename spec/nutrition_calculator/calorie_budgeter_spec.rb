@@ -1,7 +1,11 @@
 require 'spec_helper'
+require 'logger'
 require 'nutrition_calculator/calorie_budgeter'
 
 describe NutritionCalculator::CalorieBudgeter do
+  # Uncomment the following line if you need debugging output
+  # subject { described_class.new(logger: Logger.new(STDERR)) }
+
   describe '#net_calorie_consumption' do
     it 'is the number of calories consumed less any calories burned via exercise' do
       subject.calories_consumed = 100
