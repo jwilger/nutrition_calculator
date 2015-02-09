@@ -1,3 +1,5 @@
+require 'nutrition_calculator/null_logger'
+
 module NutritionCalculator
   class RemainingDailyCaloriesCalculator
     def self.attr_accessor_with_default(name, default)
@@ -10,14 +12,6 @@ module NutritionCalculator
         instance_variable_get("@#{name}") \
           || instance_variable_set("@#{name}", default)
       end
-    end
-
-    class NullLogger
-      def noop(*args);end
-      alias_method :error, :noop
-      alias_method :warn, :noop
-      alias_method :info, :noop
-      alias_method :debug, :noop
     end
 
     attr_accessor_with_default :resting_metabolic_rate, 2_000
