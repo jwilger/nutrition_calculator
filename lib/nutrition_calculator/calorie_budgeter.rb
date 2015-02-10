@@ -1,6 +1,42 @@
 require 'nutrition_calculator/cached_outputs_with_recalculation'
 
 module NutritionCalculator
+  # Calculates Calorie Budget Per Day in Weekly Context
+  #
+  # The `NutritionCalculator::CalorieBudgeter` is used to determine how many
+  # calories you need to consume and how many calories you need to burn via
+  # exercise for a given day in order to stay on target with your diet. In
+  # particular, it ensures that you consume at least enough to satisfy your
+  # resting metabolic rate each day, even if that means you need to burn off
+  # calories via exercise to keep on track. It operates on a weekly basis,
+  # so if you are over-/under-budget on a given day, the goals for the
+  # remainder of the week will be adjusted accordingly.
+  # 
+  # @example
+  #   cb = NutritionCalculator::CalorieBudgeter.new
+  #   
+  #   cb.resting_metabolic_rate = 2_000 # calories per day
+  #   cb.weekly_calorie_goal = 10_500 # creates an average deficit of 500 calories/day
+  #   cb.current_day_of_week = 3 # if your week starts on Monday, this would be Wednesday
+  #   cb.prior_days_calories = 3_524 # net calories from Monday and Tuesday
+  #   
+  #   cb.calories_consumed = 0
+  #   cb.calories_burned = 0
+  #   
+  #   cb.calories_remaining
+  #   #=> 2_000 
+  #   
+  #   cb.exercise_calories_remaining
+  #   #=> 605
+  #   
+  #   cb.calories_consumed = 681 # total calories consumed today
+  #   cb.calories_burned = 1752
+  #   
+  #   cb.calories_remaining
+  #   #=> 2_466
+  #   
+  #   cb.exercise_calories_remaining
+  #   #=> 0
   class CalorieBudgeter
     extend CachedOutputsWithRecalculation
 
