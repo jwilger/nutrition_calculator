@@ -81,7 +81,9 @@ module NutritionCalculator
     def def_input_reader(name)
       define_method(name) do
         require_input name
-        instance_variable_get("@#{name}")
+        debug_value(name) {
+          instance_variable_get("@#{name}")
+        }
       end
     end
 

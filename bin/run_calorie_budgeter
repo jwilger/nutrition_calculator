@@ -75,9 +75,12 @@ def data_for_day(day_num)
 end
 
 def prior_days_net_calories
-  (1..current_day_num).reduce { |sum, day_num|
+  values = (1...current_day_num).map { |day_num|
     day_data = data_for_day(day_num)
-    sum + (day_data['calories_consumed'] - day_data['calories_burned'])
+    day_data['calories_consumed'] - day_data['calories_burned']
+  }
+  values.reduce { |sum, daily_net_calories|
+    sum + daily_net_calories
   }
 end
 
@@ -94,6 +97,8 @@ def calories_consumed_today
 end
 
 cb = NutritionCalculator::CalorieBudgeter.new
+# require 'logger'
+# cb.logger = Logger.new(STDERR)
 cb.resting_metabolic_rate = data['resting_metabolic_rate']
 cb.weekly_calorie_goal = data['weekly_calorie_goal']
 cb.current_day_of_week = current_day_num
