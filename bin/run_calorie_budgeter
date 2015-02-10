@@ -63,7 +63,7 @@ def data
 end
 
 def current_day_num
-  day = Date.new.wday
+  day = Date.today.wday
   day = 7 if day == 0 # Sunday is the 7th day of the diet week
   day
 end
