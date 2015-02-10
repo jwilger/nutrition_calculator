@@ -1,0 +1,107 @@
+#!/usr/bin/env ruby
+
+case ARGV[0]
+when nil, '-h', '--help'
+  puts <<-EOF
+    USAGE: run_calorie_budgeter {DATA_FILE}
+
+    DATA_FILE should be a YAML file with the following format:
+
+    ----
+    resting_metabolic_rate: 1950
+    weekly_calorie_goal: 10_150
+
+    1:
+      calories_consumed: 1_998
+      calories_burned: 182
+    2:
+      calories_consumed: 1_998
+      calories_burned: 182
+    3:
+      calories_consumed: 1_998
+      calories_burned: 182
+    4:
+      calories_consumed: 1_998
+      calories_burned: 182
+    5:
+      calories_consumed: 1_998
+      calories_burned: 182
+    6:
+      calories_consumed: 1_998
+      calories_burned: 182
+    7:
+      calories_consumed: 1_998
+      calories_burned: 182
+    ----
+
+    Each numbered section in the file corresponds to a day of the week, where:
+
+    1: Monday
+    2: Tuesday
+    3: Wednesday
+    4: Thursday
+    5: Friday
+    6: Saturday
+    7: Sunday
+
+    This program considers Monday to be the start of the dieting week (i.e. that
+    is when the weekly calorie budget starts over).
+
+  EOF
+  exit
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
+
+require 'nutrition_calculator/calorie_budgeter'
+require 'yaml'
+require 'date'
+
+
+def data
+  @data ||= YAML.load_file(ARGV.first)
+end
+
+def current_day_num
+  day = Date.new.wday
+  day = 7 if day == 0 # Sunday is the 7th day of the diet week
+  day
+end
+
+def data_for_day(day_num)
+  data.fetch(day_num) do
+    { 'calories_burned' => 0, 'calories_consumed' => 0 }
+  end
+end
+
+def prior_days_net_calories
+  (1..current_day_num).reduce { |sum, day_num|
+    day_data = data_for_day(day_num)
+    sum + (day_data['calories_consumed'] - day_data['calories_burned'])
+  }
+end
+
+def today
+  data_for_day(current_day_num)
+end
+
+def calories_burned_today
+  today['calories_burned']
+end
+
+def calories_consumed_today
+  today['calories_consumed']
+end
+
+cb = NutritionCalculator::CalorieBudgeter.new
+cb.resting_metabolic_rate = data['resting_metabolic_rate']
+cb.weekly_calorie_goal = data['weekly_calorie_goal']
+cb.current_day_of_week = current_day_num
+cb.prior_days_calories = prior_days_net_calories
+cb.calories_burned = calories_burned_today
+cb.calories_consumed = calories_consumed_today
+
+puts "You have consumed #{cb.calories_consumed} calories today."
+puts "You have burned #{cb.calories_burned} calories today."
+puts "You need to consume #{cb.calories_remaining} more calories today to hit your target of #{cb.target_daily_calorie_consumption}."
+puts "You need to exercise to burn off #{cb.exercise_calories_remaining} more calories today to hit your net calorie goal of #{cb.daily_calorie_goal}."
