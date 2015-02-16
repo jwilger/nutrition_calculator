@@ -54,57 +54,26 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 
 require 'nutrition_calculator/calorie_budgeter'
+require 'nutrition_calculator/data_summarizer'
 require 'yaml'
-require 'date'
-
 
 def data
   @data ||= YAML.load_file(ARGV.first)
 end
 
-def current_day_num
-  day = Date.today.wday
-  day = 7 if day == 0 # Sunday is the 7th day of the diet week
-  day
-end
-
-def data_for_day(day_num)
-  data.fetch(day_num) do
-    { 'calories_burned' => 0, 'calories_consumed' => 0 }
-  end
-end
-
-def prior_days_net_calories
-  values = (1...current_day_num).map { |day_num|
-    day_data = data_for_day(day_num)
-    day_data['calories_consumed'] - day_data['calories_burned']
-  }
-  values.reduce { |sum, daily_net_calories|
-    sum + daily_net_calories
-  }
-end
-
-def today
-  data_for_day(current_day_num)
-end
-
-def calories_burned_today
-  today['calories_burned']
-end
-
-def calories_consumed_today
-  today['calories_consumed']
-end
-
+summarizer = NutritionCalculator::DataSummarizer.new(source_data: data)
 cb = NutritionCalculator::CalorieBudgeter.new
+
 # require 'logger'
 # cb.logger = Logger.new(STDERR)
+#
 cb.resting_metabolic_rate = data['resting_metabolic_rate']
 cb.weekly_calorie_goal = data['weekly_calorie_goal']
-cb.current_day_of_week = current_day_num
-cb.prior_days_calories = prior_days_net_calories
-cb.calories_burned = calories_burned_today
-cb.calories_consumed = calories_consumed_today
+
+cb.current_day_of_week = summarizer.current_day
+cb.prior_days_calories = summarizer.prior_days_net_calories
+cb.calories_burned = summarizer.calories_burned_today
+cb.calories_consumed = summarizer.calories_consumed_today
 
 puts "You have consumed #{cb.calories_consumed} calories today."
 puts "You have burned #{cb.calories_burned} calories today."
