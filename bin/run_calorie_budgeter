@@ -70,7 +70,7 @@ cb = NutritionCalculator::CalorieBudgeter.new
 cb.resting_metabolic_rate = data['resting_metabolic_rate']
 cb.weekly_calorie_goal = data['weekly_calorie_goal']
 
-cb.current_day_of_week = summarizer.current_day
+cb.num_days_to_budget = 8 - summarizer.current_day
 cb.prior_days_calories = summarizer.prior_days_net_calories
 cb.calories_burned = summarizer.calories_burned_today
 cb.calories_consumed = summarizer.calories_consumed_today

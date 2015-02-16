@@ -23,18 +23,18 @@ describe NutritionCalculator::CalorieBudgeter do
   end
 
   describe '#daily_calorie_goal' do
-    let(:days_left) { 8 - day }
     let(:weekly_goal) { 10_000 }
+    let(:days_left_in_week) { 8 - day }
 
     before(:each) do
-      subject.current_day_of_week = day
+      subject.num_days_to_budget = days_left_in_week
       subject.weekly_calorie_goal = weekly_goal
       subject.prior_days_calories = weekly_consumed
     end
 
     shared_examples_for 'it calculates the daily calorie goal' do
       it 'is the number of calories remaining for the week divided by the remaining days in the week' do
-        expected = ((weekly_goal - weekly_consumed).to_f / days_left).round
+        expected = ((weekly_goal - weekly_consumed).to_f / days_left_in_week).round
         expect(subject.daily_calorie_goal).to eq expected
       end
     end
@@ -50,7 +50,7 @@ describe NutritionCalculator::CalorieBudgeter do
 
   describe '#target_daily_calorie_consumption' do
     before(:each) do
-      subject.current_day_of_week = 1
+      subject.num_days_to_budget = 7
       subject.prior_days_calories = 0
       subject.resting_metabolic_rate = 2_000
     end
@@ -158,7 +158,7 @@ describe NutritionCalculator::CalorieBudgeter do
     before(:each) do
       subject.resting_metabolic_rate = 2_000
       subject.weekly_calorie_goal = 14_000
-      subject.current_day_of_week = 1
+      subject.num_days_to_budget = 7
       subject.prior_days_calories = 0
       subject.calories_burned = 0
     end
@@ -178,7 +178,7 @@ describe NutritionCalculator::CalorieBudgeter do
     before(:each) do
       subject.resting_metabolic_rate = 2_000
       subject.weekly_calorie_goal = 14_000
-      subject.current_day_of_week = 1
+      subject.num_days_to_budget = 7
       subject.prior_days_calories = 0
       subject.calories_burned = 0
     end
@@ -196,7 +196,7 @@ describe NutritionCalculator::CalorieBudgeter do
 
   describe '#predicted_calorie_consumption' do
     before(:each) do
-      subject.current_day_of_week = 1
+      subject.num_days_to_budget = 7
       subject.prior_days_calories = 0
       subject.resting_metabolic_rate = 2_000
       subject.weekly_calorie_goal = 14_000

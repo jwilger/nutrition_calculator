@@ -11,7 +11,8 @@ Given(/^I have consumed (\d+) net calories on prior days this week$/) do |cals|
 end
 
 Given(/^it is the (\d+)(st|nd|rd|th) day of the week$/) do |day, _|
-  inputs.current_day_of_week = day.to_i
+  day = day.to_i
+  inputs.num_days_to_budget = 8 - day
 end
 
 Given(/^I have consumed (\d+) calories today$/) do |cals|

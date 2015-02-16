@@ -16,9 +16,14 @@ module NutritionCalculator
   #   cb = NutritionCalculator::CalorieBudgeter.new
   #   
   #   cb.resting_metabolic_rate = 2_000 # calories per day
-  #   cb.weekly_calorie_goal = 10_500 # creates an average deficit of 500 calories/day
-  #   cb.current_day_of_week = 3 # if your week starts on Monday, this would be Wednesday
-  #   cb.prior_days_calories = 3_524 # net calories from Monday and Tuesday
+  #
+  #   cb.weekly_calorie_goal = 10_500   # creates an average deficit of 500
+  #                                     # calories/day
+  #
+  #   cb.num_days_to_budget = 5         # The number of days remaining in the
+  #                                     # week, including the current day
+  #
+  #   cb.prior_days_calories = 3_524    # net calories from days 1 and 2
   #   
   #   cb.calories_consumed = 0
   #   cb.calories_burned = 0
@@ -70,16 +75,10 @@ module NutritionCalculator
     }
 
     # @!attribute
-    # @return [Integer] The number of the day of the week
-    # @example If you start your week on Monday
-    #   1 - Monday
-    #   2 - Tuesday
-    #   3 - Wednesday
-    #   4 - Thursday
-    #   5 - Friday
-    #   6 - Saturday
-    #   7 - Sunday
-    def_input :current_day_of_week, validate_with: ->(value) {
+    # @return [Integer] The number of days across which to budget the remaining
+    #                   net calorie goal for the week. This includes the current
+    #                   day.
+    def_input :num_days_to_budget, validate_with: ->(value) {
       (1..7).include?(value)
     }
 
@@ -152,7 +151,7 @@ module NutritionCalculator
     # @return [Integer] The number of net calories that should be consumed today
     #                   to meet the weekly calorie goal
     def_output :daily_calorie_goal do
-      (remaining_calories_this_week.to_f / remaining_days_of_week).round
+      (remaining_calories_this_week.to_f / num_days_to_budget).round
     end
 
     # @!attribute [r]
@@ -161,13 +160,6 @@ module NutritionCalculator
     #                   today)
     def_output :remaining_calories_this_week do
       weekly_calorie_goal - prior_days_calories
-    end
-
-    # @!attribute [r]
-    # @return [Integer] The number of days remaining in the week, including the
-    #                   current day
-    def_output :remaining_days_of_week do
-      8 - current_day_of_week
     end
   end
 end
