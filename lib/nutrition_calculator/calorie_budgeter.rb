@@ -45,6 +45,23 @@ module NutritionCalculator
   class CalorieBudgeter
     extend CachedOutputsWithRecalculation
 
+    def initialize(diet_period: nil, source_data: nil)
+      self.diet_period = diet_period if diet_period
+      self.source_data = source_data if source_data
+    end
+
+    def diet_period=(diet_period)
+      self.resting_metabolic_rate = diet_period.resting_metabolic_rate
+      self.weekly_calorie_goal = diet_period.net_calorie_goal
+      self.num_days_to_budget = diet_period.days_remaining
+    end
+
+    def source_data=(source_data)
+      self.prior_days_calories = source_data.prior_days_net_calories
+      self.calories_consumed = source_data.calories_consumed_today
+      self.calories_burned = source_data.calories_burned_today
+    end
+
     # @!group Inputs
 
     # @!attribute

@@ -1,13 +1,12 @@
 require 'date'
+require 'nutrition_calculator/cached_outputs_with_recalculation'
 
 module NutritionCalculator
   class DietPeriod
+    extend CachedOutputsWithRecalculation
     include Comparable
 
-    attr_accessor :length, :start_date, :resting_metabolic_rate,
-      :weight_loss_goal_in_kg
-
-    alias_method :to_date, :start_date
+    CALORIES_PER_KG = 7_500
 
     def initialize(length:, start_date:, resting_metabolic_rate:,
                    weight_loss_goal_in_kg:, calendar: Date)
@@ -18,15 +17,34 @@ module NutritionCalculator
       self.calendar = calendar
     end
 
-    def current_day
+    def_input :length, validate_with: ->(value) {
+      value.kind_of?(Integer) \
+        && value > 0
+    }
+
+    def_input :start_date, validate_with: ->(value) {
+      value.kind_of?(Date)
+    }
+    alias_method :to_date, :start_date
+
+    def_input :resting_metabolic_rate, validate_with: ->(value) {
+      value.kind_of?(Integer) \
+        && value > 0
+    }
+
+    def_input :weight_loss_goal_in_kg, validate_with: ->(value) {
+      value.kind_of?(Numeric)
+    }
+
+    def_output :current_day do
       (calendar.today - current_cycle_start_date).to_i
     end
 
-    def days_remaining
+    def_output :days_remaining do
       length - current_day
     end
 
-    def net_calorie_goal
+    def_output :net_calorie_goal do
       rmr_for_period - planned_calorie_deficit
     end
 
@@ -57,7 +75,7 @@ module NutritionCalculator
     end
 
     def planned_calorie_deficit
-      weight_loss_goal_in_kg * CALORIES_PER_KG
+      (weight_loss_goal_in_kg * CALORIES_PER_KG).ceil
     end
   end
 end

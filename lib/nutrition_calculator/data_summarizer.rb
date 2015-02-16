@@ -1,18 +1,15 @@
-require 'date'
-
 module NutritionCalculator
   class DataSummarizer
-    SUNDAY = 7
-    MONDAY = 1
-
-    def initialize(source_data:, calendar: Date)
+    def initialize(source_data:, diet_period:)
       self.source_data = source_data
-      self.calendar = calendar
+      self.diet_period = diet_period
     end
 
     def prior_days_net_calories
-      return 0 if current_day == MONDAY
-      values = (1...current_day).map { |day| net_calories_for_day(day) }
+      return 0 if current_day == 0
+      values = (0...current_day).map { |day|
+        net_calories_for_day(day)
+      }
       values.reduce { |weekly_net, daily_net| weekly_net + daily_net }
     end
 
@@ -24,17 +21,12 @@ module NutritionCalculator
       source_data_for_day(current_day)['calories_burned']
     end
 
-    # TODO: this probably isn't the right place to put this, since it looks like
-    # it does need to be exposed to the CalorieBudgeter as well. Still, this is
-    # better than having it live in the CLI script itself for now.
-    def current_day
-      day = calendar.today.wday
-      day = SUNDAY if day < MONDAY
-      day
-    end
-
     private
-    attr_accessor :source_data, :calendar
+    attr_accessor :source_data, :diet_period
+
+    def current_day
+      diet_period.current_day
+    end
 
     def net_calories_for_day(day)
       data = source_data_for_day(day)

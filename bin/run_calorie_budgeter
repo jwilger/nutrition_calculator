@@ -55,25 +55,28 @@ $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
 
 require 'nutrition_calculator/calorie_budgeter'
 require 'nutrition_calculator/data_summarizer'
+require 'nutrition_calculator/diet_period'
 require 'yaml'
 
 def data
   @data ||= YAML.load_file(ARGV.first)
 end
 
-summarizer = NutritionCalculator::DataSummarizer.new(source_data: data)
-cb = NutritionCalculator::CalorieBudgeter.new
+diet_period = NutritionCalculator::DietPeriod.new(
+  start_date: data['start_date'],
+  length: data['period_length'],
+  resting_metabolic_rate: data['resting_metabolic_rate'],
+  weight_loss_goal_in_kg: data['weight_loss_goal_in_kg']
+)
+
+summarizer = NutritionCalculator::DataSummarizer.new(source_data: data,
+                                                     diet_period: diet_period)
+
+cb = NutritionCalculator::CalorieBudgeter.new(diet_period: diet_period,
+                                              source_data: summarizer)
 
 # require 'logger'
 # cb.logger = Logger.new(STDERR)
-#
-cb.resting_metabolic_rate = data['resting_metabolic_rate']
-cb.weekly_calorie_goal = data['weekly_calorie_goal']
-
-cb.num_days_to_budget = 8 - summarizer.current_day
-cb.prior_days_calories = summarizer.prior_days_net_calories
-cb.calories_burned = summarizer.calories_burned_today
-cb.calories_consumed = summarizer.calories_consumed_today
 
 puts "You have consumed #{cb.calories_consumed} calories today."
 puts "You have burned #{cb.calories_burned} calories today."
