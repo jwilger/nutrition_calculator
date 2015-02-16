@@ -10,6 +10,10 @@ module NutritionCalculator
   #
   #     def_input :bar
   #
+  #     def_input :spam, validate_with: ->(value) {
+  #       value != 'ham'
+  #     }
+  #
   #     def_output :baz do
   #       bar.expensive_operation
   #     end
@@ -19,6 +23,11 @@ module NutritionCalculator
   #
   #   x.baz
   #   #=> Raises a RuntimeError because input bar was not set
+  #
+  #   x.spam = 'ham'
+  #   #=> Raises a
+  #     NutritionCalculator::CachedOutputsWithRecalculation::InvalidInputError
+  #     because the validation returned false.
   #
   #   a_thing = ExpensiveObject.new
   #
@@ -37,6 +46,8 @@ module NutritionCalculator
   #   #=> result of `a_thing.expensive_operation`
   #
   module CachedOutputsWithRecalculation
+    class InvalidInputError < RuntimeError; end
+
     # @private
     def self.extended(other)
       other.include(InstanceMethods)
@@ -48,8 +59,8 @@ module NutritionCalculator
     # recalculated the next time they are called.
     #
     # @param name [Symbol]
-    def def_input(name)
-      def_input_writer name
+    def def_input(name, validate_with: ->(_) { true })
+      def_input_writer name, validator: validate_with
       def_input_reader name
     end
 
@@ -71,8 +82,9 @@ module NutritionCalculator
 
     private
 
-    def def_input_writer(name)
+    def def_input_writer(name, validator:)
       define_method("#{name}=") do |value|
+        validate_input!(name, value, validator)
         recalculate!
         instance_variable_set("@#{name}", value)
       end
@@ -94,6 +106,13 @@ module NutritionCalculator
 
       def cached_values
         @cached_values ||= {}
+      end
+
+      def validate_input!(name, value, validator)
+        success = validator.(value)
+        if !success
+          raise InvalidInputError, "#{value.inspect} is not a valid input value for '##{name}'."
+        end
       end
 
       def recalculate!

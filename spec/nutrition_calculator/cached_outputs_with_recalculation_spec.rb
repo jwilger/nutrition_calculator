@@ -8,6 +8,10 @@ describe NutritionCalculator::CachedOutputsWithRecalculation do
 
       def_input :foo
 
+      def_input :spam, validate_with: ->(value) {
+        value != 'ham'
+      }
+
       def_output :baz do
         foo.bar
       end
@@ -26,6 +30,21 @@ describe NutritionCalculator::CachedOutputsWithRecalculation do
   it "complains when asked for the value of an input that was not provided" do
     expect{subject.foo}.to \
       raise_error(RuntimeError, "Required input missing: `foo`.")
+  end
+
+  context 'when an input has a validator' do
+    it 'raises an exception on assignment if the validation fails' do
+      expect { subject.spam = 'ham' }.to \
+        raise_error(
+          NutritionCalculator::CachedOutputsWithRecalculation::InvalidInputError,
+          "#{'ham'.inspect} is not a valid input value for '#spam'."
+        )
+    end
+
+    it 'does not raise an exception if the validation passes' do
+      subject.foo = 'canned ham'
+      expect(subject.foo).to eq 'canned ham'
+    end
   end
 
   it 'creates attr_readers for outputs' do
