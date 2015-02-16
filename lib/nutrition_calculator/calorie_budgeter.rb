@@ -44,12 +44,17 @@ module NutritionCalculator
 
     # @!attribute
     # @return [Integer] The daily resting metabolic rate in calories
-    def_input :resting_metabolic_rate
+    def_input :resting_metabolic_rate, validate_with: ->(value) {
+      value.kind_of?(Integer) \
+        && value > 0
+    }
 
     # @!attribute
     # @return [Integer] The total net calories (consumed - burned) planned for
     #                   the week
-    def_input :weekly_calorie_goal
+    def_input :weekly_calorie_goal, validate_with: ->(value) {
+      value.kind_of?(Integer)
+    }
 
     # @!attribute
     # @return [Integer] The total net calories from all days this week prior
@@ -60,7 +65,9 @@ module NutritionCalculator
     #   And on Tuesday you consumed 200 calories and burned 100 for a net of 100
     #   Then you don't care about today's calories
     #   And the value for this input should be 125 (Monday + Tuesday)
-    def_input :prior_days_calories
+    def_input :prior_days_calories, validate_with: ->(value) {
+      value.kind_of?(Integer)
+    }
 
     # @!attribute
     # @return [Integer] The number of the day of the week
@@ -72,15 +79,23 @@ module NutritionCalculator
     #   5 - Friday
     #   6 - Saturday
     #   7 - Sunday
-    def_input :current_day_of_week
+    def_input :current_day_of_week, validate_with: ->(value) {
+      (1..7).include?(value)
+    }
 
     # @!attribute
     # @return [Integer] The total number of calories consumed today
-    def_input :calories_consumed
+    def_input :calories_consumed, validate_with: ->(value) {
+      value.kind_of?(Integer) \
+        && value >= 0
+    }
 
     # @!attribute
     # @return [Integer] The total number of calories burned via exercise today
-    def_input :calories_burned
+    def_input :calories_burned, validate_with: ->(value) {
+      value.kind_of?(Integer) \
+        && value >= 0
+    }
 
     # @!group Outputs
 
