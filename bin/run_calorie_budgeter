@@ -2,53 +2,8 @@
 
 case ARGV[0]
 when nil, '-h', '--help'
-  puts <<-EOF
-    USAGE: run_calorie_budgeter {DATA_FILE}
-
-    DATA_FILE should be a YAML file with the following format:
-
-    ----
-    resting_metabolic_rate: 1950
-    weekly_calorie_goal: 10_150
-
-    1:
-      calories_consumed: 1_998
-      calories_burned: 182
-    2:
-      calories_consumed: 1_998
-      calories_burned: 182
-    3:
-      calories_consumed: 1_998
-      calories_burned: 182
-    4:
-      calories_consumed: 1_998
-      calories_burned: 182
-    5:
-      calories_consumed: 1_998
-      calories_burned: 182
-    6:
-      calories_consumed: 1_998
-      calories_burned: 182
-    7:
-      calories_consumed: 1_998
-      calories_burned: 182
-    ----
-
-    Each numbered section in the file corresponds to a day of the week, where:
-
-    1: Monday
-    2: Tuesday
-    3: Wednesday
-    4: Thursday
-    5: Friday
-    6: Saturday
-    7: Sunday
-
-    This program considers Monday to be the start of the dieting week (i.e. that
-    is when the weekly calorie budget starts over).
-
-  EOF
-  exit
+  puts DATA.read
+  exit 1
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
@@ -82,3 +37,57 @@ puts "You have consumed #{cb.calories_consumed} calories today."
 puts "You have burned #{cb.calories_burned} calories today."
 puts "You need to consume #{cb.calories_remaining} more calories today to hit your target of #{cb.target_daily_calorie_consumption}."
 puts "You need to exercise to burn off #{cb.exercise_calories_remaining} more calories today to hit your net calorie goal of #{cb.daily_calorie_goal}."
+
+__END__
+
+USAGE: run_calorie_budgeter {DATA_FILE}
+
+DATA_FILE should be a YAML file with the following format:
+
+----
+period_length: 7
+start_date: 2015-02-16
+resting_metabolic_rate: 1950
+weight_loss_goal_in_kg: 0.5
+
+0:
+  calories_consumed: 1_998
+  calories_burned: 182
+1:
+  calories_consumed: 1_998
+  calories_burned: 182
+2:
+  calories_consumed: 1_998
+  calories_burned: 182
+3:
+  calories_consumed: 1_998
+  calories_burned: 182
+4:
+  calories_consumed: 1_998
+  calories_burned: 182
+5:
+  calories_consumed: 1_998
+  calories_burned: 182
+6:
+  calories_consumed: 1_998
+  calories_burned: 182
+----
+
+FIELD DESCRIPTIONS
+  period_length: the length in days of the diet period
+
+  start_date: the date on which the first cycle of the diet period started
+
+  resting_metabolic_rate: the number of calories burned per day while not
+                          actively exercising
+
+  weight_loss_goal_in_kg: the amount of weight that should be lost during
+                          each cycle of the diet period
+
+  {0..n}: the nth day of the current cycle in the diet period; yes, the
+          first day is day zero
+          
+  calories_consumed: the total calories consumed on the specified day
+
+  calories_burned: the total number of calories burned by exercising on the
+                   given day
