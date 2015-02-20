@@ -8,9 +8,11 @@ module NutritionCalculator
   # exercise for a given day in order to stay on target with your diet. In
   # particular, it ensures that you consume at least enough to satisfy your
   # resting metabolic rate each day, even if that means you need to burn off
-  # calories via exercise to keep on track. It operates on a weekly basis,
-  # so if you are over-/under-budget on a given day, the goals for the
-  # remainder of the week will be adjusted accordingly.
+  # calories via exercise to keep on track. It can operate with diet periods of
+  # various lengths; it simply requires information about the net calorie goal
+  # for the period, the number of calories already consumed in the period, and
+  # the number of days remaining in the period to calculate the net calorie
+  # target for the current day.
   # 
   # @example
   #   cb = NutritionCalculator::CalorieBudgeter.new
@@ -45,17 +47,29 @@ module NutritionCalculator
   class CalorieBudgeter
     extend CachedOutputsWithRecalculation
 
+    # Instantiates a new CalorieBudgeter
+    #
+    # @param diet_period [NutritionCalculator::DietPeriod] If provided, the
+    #        {#resting_metabolic_rate}, {#weekly_calorie_goal}, and
+    #        {#num_days_to_budget} inputs will be set based on this object.
+    # @param source_data [NutritionCalculator::DataSummarizer] If provided, the
+    #        {#prior_days_calories}, {#calories_consumed}, and
+    #        {#calories_burned} inputs will be set based on this object.
     def initialize(diet_period: nil, source_data: nil)
       self.diet_period = diet_period if diet_period
       self.source_data = source_data if source_data
     end
 
+    # @api nodoc
+    # @see #initialize
     def diet_period=(diet_period)
       self.resting_metabolic_rate = diet_period.resting_metabolic_rate
       self.weekly_calorie_goal = diet_period.net_calorie_goal
       self.num_days_to_budget = diet_period.days_remaining
     end
 
+    # @api nodoc
+    # @see #initialize
     def source_data=(source_data)
       self.prior_days_calories = source_data.prior_days_net_calories
       self.calories_consumed = source_data.calories_consumed_today
@@ -73,16 +87,21 @@ module NutritionCalculator
 
     # @!attribute
     # @return [Integer] The total net calories (consumed - burned) planned for
-    #                   the week
+    #                   the budgeted period
+    #
+    # TODO: Need to rename this to reflect the fact that the budgeted period can
+    #       be any number of days, not just a week
     def_input :weekly_calorie_goal, validate_with: ->(value) {
       value.kind_of?(Integer)
     }
 
     # @!attribute
-    # @return [Integer] The total net calories from all days this week prior
-    #                   to the current day
+    # @return [Integer] The total net calories from all days prior to the
+    #         current day in the diet period
+    #
     # @example
     #   If it is currently Wednesday
+    #   And your diet period is 7 days long beginning on Monday
     #   And on Monday you consumed 100 calories and burned 75 for a net of 25
     #   And on Tuesday you consumed 200 calories and burned 100 for a net of 100
     #   Then you don't care about today's calories
@@ -93,8 +112,7 @@ module NutritionCalculator
 
     # @!attribute
     # @return [Integer] The number of days across which to budget the remaining
-    #                   net calorie goal for the week. This includes the current
-    #                   day.
+    #                   net calorie goal. This includes the current day.
     def_input :num_days_to_budget, validate_with: ->(value) {
       (1..7).include?(value)
     }
@@ -145,8 +163,8 @@ module NutritionCalculator
 
     # @!attribute [r]
     # @return [Integer] The number of calories consumed (or predicted to be
-    #                   consumed) that is greater than the daily calorie goal
-    #                   and not yet burned off via exercise
+    #                   consumed) that is greater than the daily net calorie
+    #                   goal and not yet burned off via exercise
     def_output :predicted_overage do
       predicted_calorie_consumption - daily_calorie_goal - calories_burned
     end
@@ -165,16 +183,16 @@ module NutritionCalculator
     end
 
     # @!attribute [r]
-    # @return [Integer] The number of net calories that should be consumed today
-    #                   to meet the weekly calorie goal
+    # @return [Integer] The net calorie budget for the current day that keeps
+    #                   the diet on track for the current period
     def_output :daily_calorie_goal do
       (remaining_calories_this_week.to_f / num_days_to_budget).round
     end
 
     # @!attribute [r]
     # @return [Integer] The number of calories left in the calorie budget for
-    #                   the current week (does not include calories consumed
-    #                   today)
+    #                   the current diet period (does not include calories
+    #                   consumed today)
     def_output :remaining_calories_this_week do
       weekly_calorie_goal - prior_days_calories
     end

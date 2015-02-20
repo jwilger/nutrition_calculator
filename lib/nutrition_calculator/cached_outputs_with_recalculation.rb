@@ -2,7 +2,10 @@ require 'nutrition_calculator/has_logging'
 
 module NutritionCalculator
 
-  # Define an object that turns inputs into outputs. With Caching! And Logging!
+  # Provides an API to create calculator objects with caching and input
+  # validation
+  #
+  # @api private
   #
   # @example
   #   class Foo
@@ -48,9 +51,9 @@ module NutritionCalculator
   module CachedOutputsWithRecalculation
     class InvalidInputError < RuntimeError; end
 
-    # @private
-    def self.extended(other)
-      other.include(InstanceMethods)
+    # @api nodoc
+    def self.extended(klass)
+      klass.include(InstanceMethods)
     end
 
     # Defines accessors for the named attribute
@@ -59,6 +62,9 @@ module NutritionCalculator
     # recalculated the next time they are called.
     #
     # @param name [Symbol]
+    # @param validate_with [Proc] A validation proc that receives the input
+    #                             value and must evaluate to `true` if the
+    #                             validation passes or `false` if it does not
     def def_input(name, validate_with: ->(_) { true })
       def_input_writer name, validator: validate_with
       def_input_reader name
