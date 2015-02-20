@@ -23,7 +23,7 @@ module NutritionCalculator
   #                                     # calories/day
   #
   #   cb.num_days_to_budget = 5         # The number of days remaining in the
-  #                                     # week, including the current day
+  #                                     # period, including the current day
   #
   #   cb.prior_days_calories = 3_524    # net calories from days 1 and 2
   #   
@@ -88,9 +88,6 @@ module NutritionCalculator
     # @!attribute
     # @return [Integer] The total net calories (consumed - burned) planned for
     #                   the budgeted period
-    #
-    # TODO: Need to rename this to reflect the fact that the budgeted period can
-    #       be any number of days, not just a week
     def_input :period_calorie_goal, validate_with: ->(value) {
       value.kind_of?(Integer)
     }
@@ -186,14 +183,14 @@ module NutritionCalculator
     # @return [Integer] The net calorie budget for the current day that keeps
     #                   the diet on track for the current period
     def_output :daily_calorie_goal do
-      (remaining_calories_this_week.to_f / num_days_to_budget).round
+      (remaining_calories_this_period.to_f / num_days_to_budget).round
     end
 
     # @!attribute [r]
     # @return [Integer] The number of calories left in the calorie budget for
     #                   the current diet period (does not include calories
     #                   consumed today)
-    def_output :remaining_calories_this_week do
+    def_output :remaining_calories_this_period do
       period_calorie_goal - prior_days_calories
     end
   end

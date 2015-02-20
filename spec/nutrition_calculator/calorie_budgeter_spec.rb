@@ -14,27 +14,27 @@ describe NutritionCalculator::CalorieBudgeter do
     end
   end
 
-  describe '#remaining_calories_this_week' do
+  describe '#remaining_calories_this_period' do
     it 'is the period calorie goal less net calories from previous days' do
       subject.period_calorie_goal = 10_000
       subject.prior_days_calories = 1_000
-      expect(subject.remaining_calories_this_week).to eq 9000
+      expect(subject.remaining_calories_this_period).to eq 9000
     end
   end
 
   describe '#daily_calorie_goal' do
     let(:period_goal) { 10_000 }
-    let(:days_left_in_week) { 8 - day }
+    let(:days_left_in_period) { 8 - day }
 
     before(:each) do
-      subject.num_days_to_budget = days_left_in_week
+      subject.num_days_to_budget = days_left_in_period
       subject.period_calorie_goal = period_goal
       subject.prior_days_calories = period_consumed
     end
 
     shared_examples_for 'it calculates the daily calorie goal' do
-      it 'is the number of calories remaining for the week divided by the remaining days in the week' do
-        expected = ((period_goal - period_consumed).to_f / days_left_in_week).round
+      it 'is the number of calories remaining for the period divided by the remaining days in the period' do
+        expected = ((period_goal - period_consumed).to_f / days_left_in_period).round
         expect(subject.daily_calorie_goal).to eq expected
       end
     end
