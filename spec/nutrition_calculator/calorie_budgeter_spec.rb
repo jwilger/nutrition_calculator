@@ -15,26 +15,26 @@ describe NutritionCalculator::CalorieBudgeter do
   end
 
   describe '#remaining_calories_this_week' do
-    it 'is the weekly calorie goal less net calories from previous days' do
-      subject.weekly_calorie_goal = 10_000
+    it 'is the period calorie goal less net calories from previous days' do
+      subject.period_calorie_goal = 10_000
       subject.prior_days_calories = 1_000
       expect(subject.remaining_calories_this_week).to eq 9000
     end
   end
 
   describe '#daily_calorie_goal' do
-    let(:weekly_goal) { 10_000 }
+    let(:period_goal) { 10_000 }
     let(:days_left_in_week) { 8 - day }
 
     before(:each) do
       subject.num_days_to_budget = days_left_in_week
-      subject.weekly_calorie_goal = weekly_goal
-      subject.prior_days_calories = weekly_consumed
+      subject.period_calorie_goal = period_goal
+      subject.prior_days_calories = period_consumed
     end
 
     shared_examples_for 'it calculates the daily calorie goal' do
       it 'is the number of calories remaining for the week divided by the remaining days in the week' do
-        expected = ((weekly_goal - weekly_consumed).to_f / days_left_in_week).round
+        expected = ((period_goal - period_consumed).to_f / days_left_in_week).round
         expect(subject.daily_calorie_goal).to eq expected
       end
     end
@@ -42,7 +42,7 @@ describe NutritionCalculator::CalorieBudgeter do
     (1..7).each do |day_num|
       context "on day #{day_num}" do
         let(:day) { day_num }
-        let(:weekly_consumed) { day_num * 10 }
+        let(:period_consumed) { day_num * 10 }
         it_behaves_like 'it calculates the daily calorie goal'
       end
     end
@@ -57,7 +57,7 @@ describe NutritionCalculator::CalorieBudgeter do
 
     context 'when the daily calorie goal is the same as the RMR' do
       before(:each) do
-        subject.weekly_calorie_goal = 14_000
+        subject.period_calorie_goal = 14_000
       end
 
       context 'when no calories have been burned via exercise' do
@@ -83,7 +83,7 @@ describe NutritionCalculator::CalorieBudgeter do
 
     context 'when the daily calorie goal is lower than the RMR' do
       before(:each) do
-        subject.weekly_calorie_goal = 10_500
+        subject.period_calorie_goal = 10_500
       end
 
       context 'when no calories have been burned via exercise' do
@@ -129,7 +129,7 @@ describe NutritionCalculator::CalorieBudgeter do
 
     context 'when the daily calorie goal is higher than the RMR' do
       before(:each) do
-        subject.weekly_calorie_goal = 17_500
+        subject.period_calorie_goal = 17_500
       end
 
       context 'when no calories have been burned via exercise' do
@@ -157,7 +157,7 @@ describe NutritionCalculator::CalorieBudgeter do
   describe '#remaining_to_target' do
     before(:each) do
       subject.resting_metabolic_rate = 2_000
-      subject.weekly_calorie_goal = 14_000
+      subject.period_calorie_goal = 14_000
       subject.num_days_to_budget = 7
       subject.prior_days_calories = 0
       subject.calories_burned = 0
@@ -177,7 +177,7 @@ describe NutritionCalculator::CalorieBudgeter do
   describe 'calories_remaining' do
     before(:each) do
       subject.resting_metabolic_rate = 2_000
-      subject.weekly_calorie_goal = 14_000
+      subject.period_calorie_goal = 14_000
       subject.num_days_to_budget = 7
       subject.prior_days_calories = 0
       subject.calories_burned = 0
@@ -199,7 +199,7 @@ describe NutritionCalculator::CalorieBudgeter do
       subject.num_days_to_budget = 7
       subject.prior_days_calories = 0
       subject.resting_metabolic_rate = 2_000
-      subject.weekly_calorie_goal = 14_000
+      subject.period_calorie_goal = 14_000
       subject.calories_burned = 0
     end
 

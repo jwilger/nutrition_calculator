@@ -3,7 +3,7 @@ Given(/^my RMR is (\d+) calories per day$/) do |rmr|
 end
 
 Given(/^my weekly calorie goal is (\d+) calories$/) do |cals|
-  inputs.weekly_calorie_goal = cals.to_i
+  inputs.period_calorie_goal = cals.to_i
 end
 
 Given(/^I have consumed (\d+) net calories on prior days this week$/) do |cals|

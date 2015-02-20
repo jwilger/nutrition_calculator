@@ -1,7 +1,7 @@
 require 'nutrition_calculator/cached_outputs_with_recalculation'
 
 module NutritionCalculator
-  # Calculates Calorie Budget Per Day in Weekly Context
+  # Calculates Calorie Budget Per Day
   #
   # The `NutritionCalculator::CalorieBudgeter` is used to determine how many
   # calories you need to consume and how many calories you need to burn via
@@ -19,7 +19,7 @@ module NutritionCalculator
   #   
   #   cb.resting_metabolic_rate = 2_000 # calories per day
   #
-  #   cb.weekly_calorie_goal = 10_500   # creates an average deficit of 500
+  #   cb.period_calorie_goal = 10_500   # creates an average deficit of 500
   #                                     # calories/day
   #
   #   cb.num_days_to_budget = 5         # The number of days remaining in the
@@ -50,7 +50,7 @@ module NutritionCalculator
     # Instantiates a new CalorieBudgeter
     #
     # @param diet_period [NutritionCalculator::DietPeriod] If provided, the
-    #        {#resting_metabolic_rate}, {#weekly_calorie_goal}, and
+    #        {#resting_metabolic_rate}, {#period_calorie_goal}, and
     #        {#num_days_to_budget} inputs will be set based on this object.
     # @param source_data [NutritionCalculator::DataSummarizer] If provided, the
     #        {#prior_days_calories}, {#calories_consumed}, and
@@ -64,7 +64,7 @@ module NutritionCalculator
     # @see #initialize
     def diet_period=(diet_period)
       self.resting_metabolic_rate = diet_period.resting_metabolic_rate
-      self.weekly_calorie_goal = diet_period.net_calorie_goal
+      self.period_calorie_goal = diet_period.net_calorie_goal
       self.num_days_to_budget = diet_period.days_remaining
     end
 
@@ -91,7 +91,7 @@ module NutritionCalculator
     #
     # TODO: Need to rename this to reflect the fact that the budgeted period can
     #       be any number of days, not just a week
-    def_input :weekly_calorie_goal, validate_with: ->(value) {
+    def_input :period_calorie_goal, validate_with: ->(value) {
       value.kind_of?(Integer)
     }
 
@@ -194,7 +194,7 @@ module NutritionCalculator
     #                   the current diet period (does not include calories
     #                   consumed today)
     def_output :remaining_calories_this_week do
-      weekly_calorie_goal - prior_days_calories
+      period_calorie_goal - prior_days_calories
     end
   end
 end
