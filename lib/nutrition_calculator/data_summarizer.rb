@@ -8,7 +8,7 @@ module NutritionCalculator
     def prior_days_net_calories
       return 0 if current_day == 0
       values = (0...current_day).map { |day|
-        net_calories_for_day(day)
+        diet_day(day).net_calories
       }
       values.reduce { |weekly_net, daily_net| weekly_net + daily_net }
     end
@@ -28,9 +28,8 @@ module NutritionCalculator
       diet_period.current_day
     end
 
-    def net_calories_for_day(day)
-      data = source_data_for_day(day)
-      data['calories_consumed'] - data['calories_burned']
+    def diet_day(day)
+      DietDay.new(source_data_for_day(day))
     end
 
     def source_data_for_day(day)
@@ -38,5 +37,21 @@ module NutritionCalculator
         {'calories_consumed' => 0, 'calories_burned' => 0}
       end
     end
+
+    # Represent the calories consumed/burned for a day
+    class DietDay
+      attr_accessor :calories_consumed, :calories_burned
+
+      def initialize(data)
+        self.calories_consumed = data['calories_consumed']
+        self.calories_burned = data['calories_burned']
+        freeze
+      end
+
+      def net_calories
+        calories_consumed - calories_burned
+      end
+    end
+    private_constant DietDay
   end
 end
