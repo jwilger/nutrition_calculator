@@ -2,6 +2,19 @@ require 'date'
 require 'nutrition_calculator/cached_outputs_with_recalculation'
 
 module NutritionCalculator
+  # The Time-Period for which the Diet is Analyzed
+  #
+  # Although we tend to look at our diets on a daily basis in terms of tracking
+  # against a calorie budget (i.e. "How much more should I eat *today*?"),
+  # weight-change goals are set over a longer period of time (i.e. "I want to
+  # lose weight at a rate of 1lb per week.") The DietPeriod represents the
+  # period of time (in days) over which a person is attempting to lose a certain
+  # amount of weight (in kilograms).
+  #
+  # The DietPeriod is a cycle. When instantiated with a `length`, `start_date`,
+  # `resting_metabolic_rate`, and `weight_loss_goal_in_kg`, it can report the
+  # number of days remaining in the current cycle and the number of calories
+  # that should be consumed (net) each day.
   class DietPeriod
     extend CachedOutputsWithRecalculation
     include Comparable
